@@ -34,12 +34,26 @@ if [ "$1" = "-i" ]; then
 						break
 					else
 						echo ERROR: Bad input
-						exit
+						echo Continue?
+						select yesno in $OPTIONS; do
+							if [ "$yesno" = "Yes" ]; then
+								break
+							else
+								exit
+							fi
+						done
 					fi
 				done
 			else
 				echo ERROR: File $i does not exist
-				exit
+				echo Continue?
+				select yesno in $OPTIONS; do
+					if [ "$yesno" = "Yes" ]; then
+						break
+					else
+						exit
+					fi
+				done
 			fi
 		fi
 	done
@@ -69,7 +83,14 @@ else
 			fi
 		else
 			echo ERROR: File $i does not exist
-			exit
+			echo Continue?
+			select yesno in $OPTIONS; do
+				if [ "$yesno" = "Yes" ]; then
+					break
+				else
+					exit
+				fi
+			done
 		fi
 	done
 fi
