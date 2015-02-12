@@ -3,60 +3,73 @@ OPTIONS="Yes No"
 if [ "$1" = "-i" ]; then
 	for i in $@; do
 		if [ ! "$i" = "-i" ]; then
-			echo "Would you like to trash file: \"$i\"?"
-			select opt in $OPTIONS; do
-				if [ "$opt" = "Yes" ]; then
-					echo Trashing \"$i\"
-					if [ -f ~/.local/share/Trash/info/$i.trashinfo ]; then
-						for j in $(seq 2 20); do
-							if [ ! -f ~/.local/share/Trash/info/$i.$j.trashinfo ]; then
-								touch ~/.local/share/Trash/info/$i.$j.trashinfo
-								echo "[Trash Info]" >> ~/.local/share/Trash/info/$i.$j.trashinfo
-								echo Path=$PWD/$i >> ~/.local/share/Trash/info/$i.$j.trashinfo
-								echo "DeletionDate=$(date +"%Y-%m-%dT%H:%M:%S")" >> ~/.local/share/Trash/info/$i.$j.trashinfo
-								mv $i ~/.local/share/Trash/files/$i.$j
-								break
-							fi
-						done
+			if [ -f ./$i ]; then
+				echo "Would you like to trash file: \"$i\"?"
+				select opt in $OPTIONS; do
+					if [ "$opt" = "Yes" ]; then
+						echo Trashing \"$i\"
+						if [ -f ~/.local/share/Trash/info/$i.trashinfo ]; then
+							for j in $(seq 2 20); do
+								if [ ! -f ~/.local/share/Trash/info/$i.$j.trashinfo ]; then
+									touch ~/.local/share/Trash/info/$i.$j.trashinfo
+									echo "[Trash Info]" >> ~/.local/share/Trash/info/$i.$j.trashinfo
+									echo Path=$PWD/$i >> ~/.local/share/Trash/info/$i.$j.trashinfo
+									echo "DeletionDate=$(date +"%Y-%m-%dT%H:%M:%S")" >> ~/.local/share/Trash/info/$i.$j.trashinfo
+									mv $i ~/.local/share/Trash/files/$i.$j
+									break
+								fi
+							done
+						else
+							touch ~/.local/share/Trash/info/$i.trashinfo
+							echo "[Trash Info]" >> ~/.local/share/Trash/info/$i.trashinfo
+							echo Path=$PWD/$i >> ~/.local/share/Trash/info/$i.trashinfo
+							echo "DeletionDate=$(date +"%Y-%m-%dT%H:%M:%S")" >> ~/.local/share/Trash/info/$i.trashinfo
+							mv $i ~/.local/share/Trash/files/
+						fi
+						echo ...
+						echo File \"$i\" trashed
+						break
+					elif [ "$opt" = "No" ]; then
+						echo Skipping file \"$i\"
+						break
 					else
-						touch ~/.local/share/Trash/info/$i.trashinfo
-						echo "[Trash Info]" >> ~/.local/share/Trash/info/$i.trashinfo
-						echo Path=$PWD/$i >> ~/.local/share/Trash/info/$i.trashinfo
-						echo "DeletionDate=$(date +"%Y-%m-%dT%H:%M:%S")" >> ~/.local/share/Trash/info/$i.trashinfo
-						mv $i ~/.local/share/Trash/files/
+						echo ERROR: Bad input
+						exit
 					fi
-					echo ...
-					echo File \"$i\" trashed
-					break
-				elif [ "$opt" = "No" ]; then
-					echo Skipping file \"$i\"
-					break
-				else
-					echo ERROR: Bad input
-					exit
-				fi
-			done
+				done
+			else
+				echo ERROR: File $i does not exist
+				exit
+			fi
 		fi
 	done
+elif [ $# -eq 0 ]; then
+	echo ERROR: No input
+	exit
 else
 	for i in $@; do
-		if [ -f ~/.local/share/Trash/info/$i.trashinfo ]; then
-			for j in $(seq 2 20); do
-				if [ ! -f ~/.local/share/Trash/info/$i.$j.trashinfo ]; then
-					touch ~/.local/share/Trash/info/$i.$j.trashinfo
-					echo "[Trash Info]" >> ~/.local/share/Trash/info/$i.$j.trashinfo
-					echo Path=$PWD/$i >> ~/.local/share/Trash/info/$i.$j.trashinfo
-					echo "DeletionDate=$(date +"%Y-%m-%dT%H:%M:%S")" >> ~/.local/share/Trash/info/$i.$j.trashinfo
-					mv $i ~/.local/share/Trash/files/$i.$j
-					break
-				fi
-			done
+		if [ -f ./$i ]; then
+			if [ -f ~/.local/share/Trash/info/$i.trashinfo ]; then
+				for j in $(seq 2 20); do
+					if [ ! -f ~/.local/share/Trash/info/$i.$j.trashinfo ]; then
+						touch ~/.local/share/Trash/info/$i.$j.trashinfo
+						echo "[Trash Info]" >> ~/.local/share/Trash/info/$i.$j.trashinfo
+						echo Path=$PWD/$i >> ~/.local/share/Trash/info/$i.$j.trashinfo
+						echo "DeletionDate=$(date +"%Y-%m-%dT%H:%M:%S")" >> ~/.local/share/Trash/info/$i.$j.trashinfo
+						mv $i ~/.local/share/Trash/files/$i.$j
+						break
+					fi
+				done
+			else
+				touch ~/.local/share/Trash/info/$i.trashinfo
+				echo "[Trash Info]" >> ~/.local/share/Trash/info/$i.trashinfo
+				echo Path=$PWD/$i >> ~/.local/share/Trash/info/$i.trashinfo
+				echo "DeletionDate=$(date +"%Y-%m-%dT%H:%M:%S")" >> ~/.local/share/Trash/info/$i.trashinfo
+				mv $i ~/.local/share/Trash/files/
+			fi
 		else
-			touch ~/.local/share/Trash/info/$i.trashinfo
-			echo "[Trash Info]" >> ~/.local/share/Trash/info/$i.trashinfo
-			echo Path=$PWD/$i >> ~/.local/share/Trash/info/$i.trashinfo
-			echo "DeletionDate=$(date +"%Y-%m-%dT%H:%M:%S")" >> ~/.local/share/Trash/info/$i.trashinfo
-			mv $i ~/.local/share/Trash/files/
+			echo ERROR: File $i does not exist
+			exit
 		fi
 	done
 fi
